@@ -14,3 +14,8 @@ Options:
 * `-r`: search current directory recursively 
 * `-a`: ask also before deleting a swap file which does not differ from the file 
 * `-h`: help 
+
+Requirements
+------------
+
+You need to install `python` and [psutils](https://pypi.python.org/pypi/psutil).
