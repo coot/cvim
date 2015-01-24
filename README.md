@@ -10,7 +10,7 @@ them.  `cvim` is also included in
 [recover.vim](http://www.vim.org/scripts/script.php?script_id=3068).
 
 Options:
-    * `-f`: only find swap files (recursively)
-    * `-r`: search current directory recursively
-    * `-a`: ask also before deleting a swap file which does not differ from the file
-    * `-h`: help
+* `-f`: only find swap files (recursively) 
+* `-r`: search current directory recursively 
+* `-a`: ask also before deleting a swap file which does not differ from the file 
+* `-h`: help 
