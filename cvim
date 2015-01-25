@@ -5,19 +5,21 @@
 # License: VIM LICENSE.
 #          NO WARRANTY, EXPRESS OR IMPLIED> USE AT-YOUR-OWN-RISK.
 
+import argparse
+from collections import defaultdict
+from copy import copy
+import heapq
+import locale
+from operator import attrgetter
 import os
-import sys
+import psutil
 import re
 import subprocess
-import argparse
-import locale
-import psutil
-import heapq
+import sys
 import tempfile
 import time
-from copy import copy
-from collections import defaultdict
-from operator import attrgetter
+import types
+
 PY3 = sys.version_info[0] == 3
 if not PY3:
     input = raw_input
@@ -29,9 +31,7 @@ else:
     bytes = str
 
 EDITOR = u'gvim' if \
-    re.search(
-        r'gvim(\.exe)?$',
-        os.environ.get('EDITOR', 'vim')) \
+    re.search(r'gvim(\.exe)?$', os.environ.get('EDITOR', 'vim')) \
     else 'vim'
 CURDIR = os.path.normpath(os.path.abspath(os.curdir))
 
@@ -242,7 +242,7 @@ def main(args):
             os.chdir(os.path.abspath(dir_))
             for dirp, dirs, fns in os.walk(os.curdir):
                 for f in fns:
-                    if is_vim_swap_file(f):
+                    if is_vim_swap_file(os.path.join(dirp, f)):
                         swap = Swap(os.path.abspath(os.path.join(dirp, f)))
                         heapq.heappush(swaps[swap.file_name], swap)
 
@@ -291,16 +291,26 @@ def main(args):
             swap = heapq.heappop(sws)
             process = swap.check()
             if process:
-                if process.terminal:
-                    terminal = u" on %s" % process.terminal.decode('utf-8')
+                terminal = process.terminal
+                if isinstance(terminal, (types.MethodType,
+                                         types.FunctionType)):
+                    terminal = terminal()
+
+                if terminal:
+                    terminal = u" on %s" % terminal.decode('utf-8')
                 else:
                     terminal = u""
+
+                process_name = process.name
+                if isinstance(process_name, types.MethodType):
+                    process_name = process_name()
+
                 print(u'The "{swap}" swap file is used by process {pid} ({process_name}){terminal}.  '
                       u'Skipping.'.
                       format(
                           swap=swap,
                           pid=unicode(process.pid),
-                          process_name=process.name.decode(encoding),
+                          process_name=process_name.decode(encoding),
                           terminal=terminal)
                       )
                 continue
